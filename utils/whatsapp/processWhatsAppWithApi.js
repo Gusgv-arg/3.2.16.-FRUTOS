@@ -56,14 +56,13 @@ export const processWhatsAppWithApi = async (userMessage) => {
 			// Envío Flow de Cliente
 			await sendFlow_2ToCustomer(userMessage);
 
-			// Busca en la Base de Clientes
+			// Busca en la Base de Clientes para modificar BD
 			const customer = await Customers.findOne({
 				isActive: true,
 				id_user: userMessage.userPhone,
 			});
 
 			if (customer) {
-
 				//Graba en BD;
 
 				log = `.`;

@@ -18,6 +18,8 @@ const flowDetailSchema = new mongoose.Schema({
 			"entregado",					
 		],
 	},
+	delivery: { type: String, enum: ["si", "no"], default: "no" },
+	totalPurchase: Number,
 	statusDate: String,
 	history: String,
 	flow_2token: String,

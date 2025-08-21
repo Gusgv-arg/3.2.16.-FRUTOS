@@ -1,6 +1,6 @@
 import { convertBufferImageToUrl } from "../media/convertBufferImageToUrl.js";
 import { downloadWhatsAppMedia } from "../media/downloadWhatsAppMedia.js";
-import { errorMessage1 } from "../errors/errorMessages.js";
+import { errorMessage1 } from "../messages/messages.js";
 import { getMediaWhatsappUrl } from "../media/getMediaWhatsappUrl.js";
 import { handleWhatsappMessage } from "../whatsapp/handleWhatsappMessage.js";
 import { adminWhatsAppNotification } from "../notifications/adminWhatsAppNotification.js";
@@ -58,14 +58,13 @@ export class WhatsAppMessageQueue {
 				// Process whatsApp with API
 				const log = await processWhatsAppWithApi(newMessage);
 				console.log(log);
-				
 			} catch (error) {
 				console.error(`Error en whatsAppMessageQueue.js: ${error.message}`);
 
 				const errorMessage = error?.response?.data
 					? JSON.stringify(error.response.data)
 					: error.message;
-					
+
 				// Change flag to allow next message processing
 				queue.processing = false;
 

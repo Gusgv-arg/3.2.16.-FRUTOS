@@ -2,9 +2,6 @@ import axios from "axios";
 import { handleWhatsappMessage } from "../whatsapp/handleWhatsappMessage.js";
 import { adminWhatsAppNotification } from "../notifications/adminWhatsAppNotification.js";
 import { v4 as uuidv4 } from "uuid";
-//import { exportDealersToExcelTemplate } from "../excel/exportDealersToExcelTemplate.js";
-//import { sendExcelByWhatsApp } from "../excel/sendExcelByWhatsApp.js";
-//import { sendAbmTemplateByWhatsApp } from "../excel/sendAbmTemplateByWhatsApp.js";
 
 export const processWhatsAppFlowWithApi = async (userMessage) => {
 	const type = userMessage.type;
@@ -67,17 +64,31 @@ export const processWhatsAppFlowWithApi = async (userMessage) => {
 				}
 
 				return log;
+
 			} else if (userMessage.message.includes('"flow_token":"2"')) {
 				// ---- TOKEN 2: CLIENTE -------------------------------//
-				
+					// Variable para identificar método de entrega
+					let delivery= true; // true = envío a domicilio; false = retiro en el local
+					
+					// Verifico método de entrega para diferenciar mensaje
+					if (userMessage.message.includes('"Opciones":"Retiro_en_Local"')) {
+						delivery = false;
+					}
+
+					// Calcular el total de la compra
+					const totalPurchase = totalPurchase(userMessage.message); 
+
 					// Se genera un token para diferenciar el flow
 					const flowToken = `2${uuidv4()}`;
 
-					// Se envía respuesta al cliente
-					const message = `¡Hola ${userMessage.name}, gracias por tu compra! Tu pedido es el: ${flowToken}.`;
+					// Se busca el mensaje de confirmación de pedido
+					const message = orderConfirmation(userMessage.name, flowToken, delivery, totalPurchase);
 					
+					// Se envía respuesta al cliente
 					await handleWhatsappMessage(userMessage.userPhone, message);
 					
+					// Graba en BD el pedido del cliente
+
 					log = `El cliente ${userMessage.name}: ${userMessage.userPhone} hizo un pedido. Token: ${flowToken}`;
 				
 				
