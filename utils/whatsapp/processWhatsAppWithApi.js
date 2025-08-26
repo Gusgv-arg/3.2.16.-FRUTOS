@@ -1,16 +1,21 @@
 import { sendFlow_1ToAdmin } from "../../flows/sendFlow_1ToAdmin.js";
 import { adminWhatsAppNotification } from "../notifications/adminWhatsAppNotification.js";
 import { handleWhatsappMessage } from "./handleWhatsappMessage.js";
-import Customers from "../../models/customers.js";
+import { saveSentCatalog } from "../dataBase/saveSentCatalog.js";
 import dotenv from "dotenv";
 //import { sendFlow_2ToDealer } from "../../flows/sendFlow_2ToDealer.js";
 import { getMediaWhatsappUrl } from "../media/getMediaWhatsappUrl.js";
 import { downloadWhatsAppMedia } from "../media/downloadWhatsAppMedia.js";
-import { adminWelcome, customerGreeting } from "../messages/messages.js";
-import { sendFlow_2ToCustomer } from "../../flows/sendFlow_2ToCustomer.js";
+import { sendCatalogToCustomer } from "../../catalogs/sendCatalogToCustomer.js";
+import {
+	adminWelcome,
+	customerGreeting,
+} from "../messages/messages.js";
 
 dotenv.config();
 const adminPhone = process.env.ADMIN_PHONE;
+
+
 
 export const processWhatsAppWithApi = async (userMessage) => {
 	//console.log("usermessage en processWhatsAppWithApi", userMessage)
@@ -31,7 +36,6 @@ export const processWhatsAppWithApi = async (userMessage) => {
 				// Agrego el wamId al objeto userMessage para traquear status FLOW1
 				userMessage.wamId_Flow1 = wamId_Flow1;
 				log = `1-Se envió el Flow1 al Administrador.`;
-			
 			} else if (userMessage.type === "document") {
 				// Opción envío de Excel
 				console.log("entre al if de document del Admin");
@@ -46,31 +50,24 @@ export const processWhatsAppWithApi = async (userMessage) => {
 
 				log = `1-Se procesó el Excel.2-Notificación al Admin: `;
 			}
+		
 		} else {
+			// Es un CLIENTE
 			
-			// Si es un cliente se envía el saludo inicial y el Flow del Cliente
+			// Se envía el saludo inicial y el Flow o el Catálogo
 			message = customerGreeting(userMessage.name);
-			
+
 			await handleWhatsappMessage(userMessage.userPhone, message);
-			
+
 			// Envío Flow de Cliente
-			await sendFlow_2ToCustomer(userMessage);
+			//await sendFlow_2ToCustomer(userMessage);
 
-			// Busca en la Base de Clientes para modificar BD
-			const customer = await Customers.findOne({
-				isActive: true,
-				id_user: userMessage.userPhone,
-			});
+			// Envío Catálogo al cliente
+			await sendCatalogToCustomer(userMessage);
 
-			if (customer) {
-				//Graba en BD;
-
-				log = `.`;
-			} else {
-				//Da de alta al cliente en BD;
-
-				log = `1-.`;
-			}
+			// Crear o actualizar al cliente en la base de datos
+			const customerResult = await saveSentCatalog(userMessage);
+			log = `1-${customerResult}`;
 		}
 
 		return log;

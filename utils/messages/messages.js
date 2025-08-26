@@ -9,6 +9,7 @@ export const customerGreeting = (name) => {
 	return greeting;
 };
 
+// Se usa para el caso que se envía un Flow
 export const orderConfirmation = (name, flowToken, delivery, totalPurchase) => {
 	// Diferenciar mensaje si es envío a domicilio o retiro
 	let orderConfirmation;
@@ -20,5 +21,11 @@ export const orderConfirmation = (name, flowToken, delivery, totalPurchase) => {
 	}
 	return orderConfirmation;
 };
+
+// Se usa para el caso que se envía un Catálogo
+export const catalogOrderConfirmation = (name) => {
+	const catalogOrderConfirmation = `¡Gracias por tu compra ${name}! 🌰\n\n🚚 Ahora coordinemos la entrega.`
+	return catalogOrderConfirmation;
+}
 
 export const adminWelcome = `🔔 *Notificación:*\n\n☰ ¡👋 Hola PILI! En tu celular vas a ver el Menú de Opciones.\n\n*Frutos Secos by Pili*`;

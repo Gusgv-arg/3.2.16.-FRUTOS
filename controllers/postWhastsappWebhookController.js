@@ -1,10 +1,12 @@
 import axios from "axios";
 import { WhatsAppMessageQueue } from "../utils/queue/whatsAppQueue.js";
 import { WhatsAppFlowMessageQueue } from "../utils/queue/whatsAppFlowQueue.js";
+import { WhatsAppCatalogQueue } from "../utils/queue/whatsAppCatalogQueue.js";
 
 // Define a new instance of MessageQueue
 const whatsAppQueue = new WhatsAppMessageQueue();
 const whatsAppFlowQueue = new WhatsAppFlowMessageQueue();
+const whatsAppCatalogQueue = new WhatsAppCatalogQueue();
 
 // Function that distributes to each Queue depending on its type
 export const postWhatsappWebhookController = async (req, res) => {
@@ -57,7 +59,10 @@ export const postWhatsappWebhookController = async (req, res) => {
 					: type === "interactive"
 					? body.entry[0].changes[0].value.messages[0].interactive.nfm_reply
 							.response_json
-					: "no se pudo extraer el mensaje";
+					: type === "order" ? (() => {
+						const items = body.entry[0]?.changes[0]?.value?.messages[0]?.order?.product_items || [];
+						return items.map((item) => Object.values(item)).flat();
+					})() : "no se pudo extraer el mensaje";
 			const userPhone = body.entry[0].changes[0].value.messages[0].from;
 			const channel = "whatsapp";
 			const name = body.entry[0].changes[0].value.contacts[0].profile.name;
@@ -75,13 +80,17 @@ export const postWhatsappWebhookController = async (req, res) => {
 			};
 			console.log("Objeto userMessage que entra a la fila:", userMessage)
 
-			// Distribution to different Queues
+			// Distribución a diferentes filas
 			if (type === "interactive") {
+				console.log("Mensaje enviado a la fila de flows")
 				whatsAppFlowQueue.enqueueMessage(userMessage);
-				console.log("entré a la fila de flows")
+
+			} else if (type === "order") {
+				console.log("Mensaje enviado a la fila de orders")
+				whatsAppCatalogQueue.enqueueMessage(userMessage);
 
 			} else {
-				console.log("entré a la fila de whatsApp")
+				console.log("Mensaje enviado a la fila de WhatsApp")
 				whatsAppQueue.enqueueMessage(userMessage);
 			}
 		}

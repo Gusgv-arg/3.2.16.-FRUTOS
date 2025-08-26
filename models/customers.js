@@ -1,29 +1,28 @@
 import mongoose from "mongoose";
 
 // Flow 1-> admin Flow 2->customer
-const flowDetailSchema = new mongoose.Schema({
-	flowName: String,
-	flowDate: String,
-	messages: String,
-	flow2Response: { type: String, enum: ["si", "no"], default: "no" },
+const orderSchema = new mongoose.Schema({
+	date: String,
+	orderResponse: { type: String, enum: ["si", "no"], default: "no" },
 	customer_status: {
 		type: String,
 		enum: [
-			"primer contacto",
-			"flow enviado",
-			"flow recibido",
-			"flow leído",
-			"falló envío flow",
+			"primer_contacto",
+			"carrito_enviado",
+			"carrito_recibido",
+			"carrito_leído",
+			"falló_envío_carrito",
 			"pedido",
 			"entregado",					
 		],
 	},
+	orderDetails: String,
 	delivery: { type: String, enum: ["si", "no"], default: "no" },
 	totalPurchase: Number,
 	statusDate: String,
 	history: String,
-	flow_2token: String,
-	wamId_flow2: String,	
+	order_token: String,
+	order_wamId: String,	
 });
 
 const customerSchema = new mongoose.Schema(
@@ -33,6 +32,7 @@ const customerSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},		
+		address: String,
 		mail: String,
 		isActive: {
 			type: String,
@@ -40,7 +40,7 @@ const customerSchema = new mongoose.Schema(
 			default: "SI",
 			required: true,
 		},
-		flows: [flowDetailSchema],
+		orders: [orderSchema],
 	},
 	{
 		timestamps: true,

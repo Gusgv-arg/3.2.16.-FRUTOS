@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Super Frutos de Pili</title>
+	<meta name="description" content="Frutos secos ricos, sanos y a precios accesibles. ¡Pedí por WhatsApp!">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+	<link rel="icon" href="../catalogs/superFrutos.png">
+</head>
+<body>
+	<header class="site-header">
+		<div class="container header-inner">
+			<img id="logoImg" class="logo" alt="Super Frutos de Pili"/>
+			<h1><span class="title-gradient">Frutos Secos</span> <span class="badge-pili">by Pili</span></h1>
+			<p class="tagline">Snackeá feliz: rico, sano y ¡bien accesible!</p>
+			<a class="btn btn-accent" id="whatsappTop" target="_blank" rel="noopener">¡Quiero mi pedido!</a>
+		</div>
+	</header>
+
+	<main>
+		<section class="hero">
+			<div class="container">
+				<h2><span class="title-gradient">Frutos Secos</span> irresistibles para todos los días</h2>
+				<p>Calidad seleccionada, energía natural y precios que te hacen sonreír. Ideales para el desayno, la colación o sumar a tus recetas favoritas.</p>
+			</div>
+		</section>
+
+		<section class="products">
+			<div class="container">
+				<h3>Mis Productos</h3>
+				<div id="productGrid" class="product-grid"></div>
+			</div>
+		</section>
+
+		<section class="about">
+			<div class="container about-inner">
+				<div>
+					<h3>Hecho con cariño <span class="badge-pili">by Pili</span></h3>
+					<p>Detrás de mis Frutos Secos hay un emprendimiento personal con mucha dedicación. Elijo productos ricos y nutritivos, perfectos para cuidarte sin gastar de más. 😊<br><br><strong>🛒 Me ayuda mucho si tus pedidos los hacés apretando el botón de WhatsApp.<br>🚚 Entrego a tu domicilio los sábados de 9 a 13 hs. (zona Tigre).<br>📞 Contactame a mi celular si queres retirar tu pedido.</strong></p>
+				</div>
+				<img id="aboutImg" alt="Frutos secos" class="about-image"/>
+			</div>
+		</section>
+
+		<section class="contact">
+			<div class="container contact-inner">
+				<h3>Contacto</h3>
+				<ul class="contact-list">
+					<li><strong>Pili</strong></li>
+					<li>📞: <a id="whatsappNumber" target="_blank" rel="noopener"></a></li>
+					<li>📧: <a id="emailLink"></a></li>
+				</ul>
+				<a class="btn btn-accent" id="whatsappBottom" target="_blank" rel="noopener">¡Quiero mi pedido!</a>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container">
+			<p>© <span id="year"></span> Frutos Secos by Pili · Energía que se disfruta</p>
+		</div>
+	</footer>
+
+	<script src="app.js"></script>
+</body>
+</html>
+
