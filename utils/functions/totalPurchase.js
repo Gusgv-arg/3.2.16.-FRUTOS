@@ -5,6 +5,19 @@
 export const totalPurchase = (purchase)=>{
 let total = 0
 
+// Espera un array en el formato:
+// [producto, cantidad, precio, moneda, producto2, cantidad2, precio2, moneda2, ...]
+if (Array.isArray(purchase)) {
+	for (let index = 0; index < purchase.length; index += 4) {
+		const quantity = purchase[index + 1]
+		const unitPrice = purchase[index + 2]
+		const qtyNum = typeof quantity === "number" ? quantity : Number(quantity)
+		const priceNum = typeof unitPrice === "number" ? unitPrice : Number(unitPrice)
+		if (!Number.isNaN(qtyNum) && !Number.isNaN(priceNum)) {
+			total += qtyNum * priceNum
+		}
+	}
+}
 
 return total
 }

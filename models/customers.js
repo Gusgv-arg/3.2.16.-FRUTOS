@@ -3,15 +3,14 @@ import mongoose from "mongoose";
 // Flow 1-> admin Flow 2->customer
 const orderSchema = new mongoose.Schema({
 	date: String,
+	messages: String,
 	orderResponse: { type: String, enum: ["si", "no"], default: "no" },
 	customer_status: {
 		type: String,
 		enum: [
 			"primer_contacto",
 			"carrito_enviado",
-			"carrito_recibido",
-			"carrito_leído",
-			"falló_envío_carrito",
+			"error",
 			"pedido",
 			"entregado",					
 		],

@@ -8,6 +8,7 @@ const myPhoneNumberId = process.env.WHATSAPP_PHONE_ID;
 // Function that sends message to the user
 export const handleWhatsappMessage = async (senderId, message) => {
 	//console.log("token:",whatsappToken)
+	//console.log("message:",message)
 	try {
 
 		// Posts the message to Whatsapp

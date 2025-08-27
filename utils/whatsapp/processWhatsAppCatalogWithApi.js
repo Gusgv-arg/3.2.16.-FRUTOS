@@ -4,6 +4,7 @@ import { adminWhatsAppNotification } from "../notifications/adminWhatsAppNotific
 import { v4 as uuidv4 } from "uuid";
 import { catalogOrderConfirmation } from "../messages/messages.js";
 import { sendDeliveryFlowToCustomer } from "../../flows/sendDeliveryFlowToCustomer.js";
+import { saveOrderFromCatalog } from "../dataBase/saveOrderFromCatalog.js";
 
 export const processWhatsAppCatalogWithApi = async (userMessage) => {
 	const type = userMessage.type;
@@ -24,6 +25,7 @@ export const processWhatsAppCatalogWithApi = async (userMessage) => {
 			// Se graba el pedido en la base de datos
             const order_token = uuidv4();
             userMessage.order_token = order_token;
+			await saveOrderFromCatalog(userMessage);
 		
         }
 	} catch (error) {
