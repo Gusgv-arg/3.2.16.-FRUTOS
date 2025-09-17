@@ -19,14 +19,14 @@ export const processWhatsAppCatalogWithApi = async (userMessage) => {
 			await handleWhatsappMessage(userMessage.userPhone, message);
 			log = `Se envió confirmación de pedido al cliente ${userMessage.name}`;
 
-			// Se envía un Flow para el método de entrega y otras notas del cliente
-			await sendDeliveryFlowToCustomer(userMessage);
-
 			// Se graba el pedido en la base de datos
             const order_token = uuidv4();
             userMessage.order_token = order_token;
 			await saveOrderFromCatalog(userMessage);
 		
+			// Se envía un Flow para el método de entrega y otras notas del cliente
+			await sendDeliveryFlowToCustomer(userMessage);
+
         }
 	} catch (error) {
 		//console.log("error en processWhatsAppFlowWithApi.js", error)

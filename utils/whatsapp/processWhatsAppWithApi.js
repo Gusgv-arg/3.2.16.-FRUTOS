@@ -101,12 +101,13 @@ export const processWhatsAppWithApi = async (userMessage) => {
 
 					await handleWhatsappMessage(userMessage.userPhone, message);
 
-					// → Se envia catálogo
+					// Se envia catálogo
 					await sendCatalogToCustomer(userMessage);
 
 					// Se agrega la orden al array de órdenes
 					customer.orders.push({
 						date: currentDateTime,
+						orderDetails: "",
 						messages: userMessage.message || "",
 						orderResponse: "no",
 						customer_status: "carrito_enviado",
@@ -121,14 +122,23 @@ export const processWhatsAppWithApi = async (userMessage) => {
 				}
 			} else {
 				// NO existe el cliente
-
-				// Crear cliente y primera orden con estado carrito_enviado
+				
+				// Se envía el saludo inicial
+				message = customerGreeting(userMessage.name);
+				
+				await handleWhatsappMessage(userMessage.userPhone, message);
+				
+				// Envío catálogo
+				await sendCatalogToCustomer(userMessage);
+				
+				// Crear cliente en BD y orden con estado carrito_enviado
 				const newCustomer = new Customers({
 					id_user: userMessage.userPhone,
 					name: userMessage.name || "Sin nombre",
 					orders: [
 						{
 							date: currentDateTime,
+							orderDetails: "",
 							messages: userMessage.message || "",
 							orderResponse: "no",
 							customer_status: "carrito_enviado",
@@ -137,15 +147,8 @@ export const processWhatsAppWithApi = async (userMessage) => {
 						},
 					],
 				});
+
 				await newCustomer.save();
-
-				// Se envía el saludo inicial
-				message = customerGreeting(userMessage.name);
-
-				await handleWhatsappMessage(userMessage.userPhone, message);
-
-				// Envío catálogo
-				await sendCatalogToCustomer(userMessage);
 
 				log = `1-${userMessage.name} creado en BD y se envió catálogo.`;
 			}

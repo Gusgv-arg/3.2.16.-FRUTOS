@@ -49,26 +49,47 @@ export const saveOrderFromCatalog = async (userMessage) => {
 		});
 
 		if (customer) {
-			// Cliente existe - agregar nuevo registro al array de orders
-			const newOrder = {
-				date: currentDateTime,
-				orderResponse: "no",
-				customer_status: "pedido",
-				orderDetails: formattedOrderDetails,
-				delivery: "no",
-				totalPurchase: computedTotal,
-				statusDate: currentDateTime,
-				history: `${currentDateTime}: Primer contacto`,
-				order_token: "",
-				order_wamId: "",
-			};
+			// Cliente existe - 
+			// Caso Orden pendiente
+			if (customer.orders[customer.orders.length - 1].customer_status !== "pedido" &&
+				customer.orders[customer.orders.length - 1].customer_status !== "entregado") {
+				
+				// Actualizar la orden pendiente
+				customer.orders[customer.orders.length - 1].date = currentDateTime;
+				customer.orders[customer.orders.length - 1].orderResponse = "si";
+				customer.orders[customer.orders.length - 1].customer_status = "pedido";
+				customer.orders[customer.orders.length - 1].orderDetails = formattedOrderDetails;
+				customer.orders[customer.orders.length - 1].delivery = "no";
+				customer.orders[customer.orders.length - 1].totalPurchase = computedTotal;
+				customer.orders[customer.orders.length - 1].statusDate = currentDateTime;
+				customer.orders[customer.orders.length - 1].history += `${currentDateTime}: Pedido realizado`;
+				// order_token queda vacío??
 
-			// Agregar el nuevo order al array
-			customer.orders.push(newOrder);
+			} else {
+				// NO hay Orden pendiente (Catálogo pudo haber sido reenviado)
+				const newOrder = {
+					date: currentDateTime,
+					orderResponse: "no",
+					customer_status: "pedido",
+					orderDetails: formattedOrderDetails,
+					delivery: "no",
+					totalPurchase: computedTotal,
+					statusDate: currentDateTime,
+					history: `${currentDateTime}: Primer contacto`,
+					order_token: "",
+					order_wamId: "",
+				};
+	
+				// Agregar el nuevo order al array
+				customer.orders.push(newOrder);
+			}
+			
 			await customer.save();
-
+			
 			console.log(`Cliente existente actualizado: ${customer.name}`);
+			
 			return `Cliente existente actualizado - Nuevo order agregado`;
+		
 		} else {
 			// Cliente no existe - Puede pasar si un cliente nuevo le reenvían el catálogo y responde
 			const newCustomer = new Customers({

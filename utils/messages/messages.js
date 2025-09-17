@@ -29,6 +29,7 @@ export const catalogOrderConfirmation = (name) => {
 
 export const adminWelcome = `🔔 *Notificación:*\n\n☰ ¡👋 Hola PILI! En tu celular vas a ver el Menú de Opciones.\n\n*Frutos Secos by Pili*`;
 
+// Se usa para el caso que el cliente ya tiene un pedido en curso o no
 export const existingOrderMessage = (order) => {
 	let orderMessage;
 	if (order === "si") {
@@ -39,3 +40,6 @@ export const existingOrderMessage = (order) => {
 
 	return orderMessage;
 };
+
+// Se usa para el caso extraño en donde no se tienen los datos y hay que comenzar de nuevo
+export const restartMessage = `¡Hola! 😀\n\n🔔 Disculpanos pero no pudimos identificar tu pedido.\n📱 Te volvemos a enviar nuestro Catálogo para pedir desde tu celular.\n\n📞 Si queres contactame al ${myPhone}.\n\n¡Gracias!\n\n${firma}`;
