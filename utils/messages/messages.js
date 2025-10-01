@@ -9,15 +9,33 @@ export const customerGreeting = (name) => {
 };
 
 // Se usa para el caso que se envía un Flow
-export const orderConfirmation = (name, flowToken, delivery, totalPurchase) => {
+export const orderConfirmation = (
+	name,
+	flowToken,
+	delivery,
+	totalPurchase,
+	domicilio,
+	otherInfo,
+	method
+) => {
 	// Diferenciar mensaje si es envío a domicilio o retiro
 	let orderConfirmation;
 
 	if (delivery === true) {
-		orderConfirmation = `¡👋 Hola ${name}, gracias por tu compra! 🌰\n🛒 El total es de $${totalPurchase}.\n🆔 Tu pedido es el ${flowToken}.\n🚚 Recordá que entrego a domicilio los *sábados de 9 a 13 hs*.\n📞 Si querés decirme algo contactame al ${myPhone}.\n¡Saludos!\n\n${firma}`;
+		if (method === "Envio_otro_dia") {
+			orderConfirmation = `¡👋 Hola ${name}, gracias por tu compra! 🌰\n🛒 El total es de $${totalPurchase}.\n🆔 Tu pedido es el ${flowToken}.\n🚚 Entregar en ${domicilio} en día a confirmar.\n📞 Si querés decirme algo contactame al ${myPhone}.`;
+		
+		} else {
+			orderConfirmation = `¡👋 Hola ${name}, gracias por tu compra! 🌰\n🛒 El total es de $${totalPurchase}.\n🆔 Tu pedido es el ${flowToken}.\n🚚 Entregar en ${domicilio} el *sábado próximo de 9 a 13 hs*.\n📞 Si querés decirme algo contactame al ${myPhone}.`;
+		}
 	} else {
-		orderConfirmation = `¡👋 Hola ${name}, gracias por tu compra!🌰\n🛒 El total es de $${totalPurchase}.\n🆔 Tu pedido es el ${flowToken}.\n📞 *Contactame al ${myPhone} para coordinar tu entrega*.\n¡Saludos!\n\n${firma}`;
+		orderConfirmation = `¡👋 Hola ${name}, gracias por tu compra!🌰\n🛒 El total es de $${totalPurchase}.\n🆔 Tu pedido es el ${flowToken}.\n📞 *Contactame al ${myPhone} para coordinar tu entrega*.`;
 	}
+
+	orderConfirmation += otherInfo
+		? `\nℹ️ Otra información: ${otherInfo}\n¡Saludos!\n\n${firma}`
+		: `\n¡Saludos!\n\n${firma}`;
+
 	return orderConfirmation;
 };
 
@@ -43,3 +61,6 @@ export const existingOrderMessage = (order) => {
 
 // Se usa para el caso extraño en donde no se tienen los datos y hay que comenzar de nuevo
 export const restartMessage = `¡Hola! 😀\n\n🔔 Disculpanos pero no pudimos identificar tu pedido.\n📱 Te volvemos a enviar nuestro Catálogo para pedir desde tu celular.\n\n📞 Si queres contactame al ${myPhone}.\n\n¡Gracias!\n\n${firma}`;
+
+// Mensaje al admin
+export const adminMenu = "¡Hola PILI! 👋\n\n☰ Te recuerdo las funcionalidades al escribir los números:\n*1.* Pedidos pendientes.\n*2.* \n\n*Frutos Secos by Pili*";

@@ -8,11 +8,13 @@ import { getMediaWhatsappUrl } from "../media/getMediaWhatsappUrl.js";
 import { downloadWhatsAppMedia } from "../media/downloadWhatsAppMedia.js";
 import { sendCatalogToCustomer } from "../../catalogs/sendCatalogToCustomer.js";
 import {
-	adminWelcome,
+	adminMenu,
 	customerGreeting,
 	existingOrderMessage,
 } from "../messages/messages.js";
 import Customers from "../../models/customers.js";
+import { pendingOrders } from "../dataBase/pendingOrders.js";
+import { handleManyWhatsappMessages } from "./handleManyWhatsAppMessages.js";
 
 dotenv.config();
 const adminPhone = process.env.ADMIN_PHONE;
@@ -37,15 +39,21 @@ export const processWhatsAppWithApi = async (userMessage) => {
 		if (userMessage.userPhone === adminPhone) {
 			console.log("Detectó el Admin phone");
 			if (userMessage.type !== "document") {
-				// Saludo al Admin
-				await handleWhatsappMessage(userMessage.userPhone, adminWelcome);
+				
+				if (userMessage.message === "1") {
+					// Pedidos pendientes
+					const orders = await pendingOrders();
 
-				// Envío Flow1 al Admin
-				const wamId_Flow1 = await sendFlow_1ToAdmin(userMessage);
-
-				// Agrego el wamId al objeto userMessage para traquear status FLOW1
-				userMessage.wamId_Flow1 = wamId_Flow1;
-				log = `1-Se envió el Flow1 al Administrador.`;
+					await handleManyWhatsappMessages(orders);
+					
+					log = `1-Se enviaron los pedidos pendientes al Administrador.`;
+				
+				} else {
+					// Saludo al Admin
+					await handleWhatsappMessage(userMessage.userPhone, adminMenu);
+					log = `1-Se envió el Menú al Administrador.`;
+				}
+				
 			} else if (userMessage.type === "document") {
 				// Opción envío de Excel
 				console.log("entre al if de document del Admin");
@@ -113,6 +121,7 @@ export const processWhatsAppWithApi = async (userMessage) => {
 						customer_status: "carrito_enviado",
 						delivery: "no",
 						statusDate: currentDateTime,
+						history: `${currentDateTime}: carrito_enviado.`,
 					});
 
 					// Graba en DD
@@ -144,6 +153,7 @@ export const processWhatsAppWithApi = async (userMessage) => {
 							customer_status: "carrito_enviado",
 							delivery: "no",
 							statusDate: currentDateTime,
+							history: `${currentDateTime}: carrito_enviado.`
 						},
 					],
 				});

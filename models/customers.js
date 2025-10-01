@@ -20,6 +20,7 @@ const orderSchema = new mongoose.Schema({
 	totalPurchase: Number,
 	delivery: { type: String, enum: ["si", "no"], default: "no" },
 	address: String,
+	otherInfo: String,
 	statusDate: String,
 	history: String,
 	order_token: String,

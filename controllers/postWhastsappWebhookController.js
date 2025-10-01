@@ -17,6 +17,8 @@ export const postWhatsappWebhookController = async (req, res) => {
 	let audioId;
 	let imageId;
 	let documentId;
+	let deliveredId = body.entry[0]?.changes[0]?.value?.messages[0]?.interactive?.button_reply?.id || ""
+
 	if (type === "audio") {
 		audioId = body.entry[0].changes[0].value.messages[0].audio
 			? body.entry[0].changes[0].value.messages[0].audio.id
@@ -57,8 +59,7 @@ export const postWhatsappWebhookController = async (req, res) => {
 					: type === "button"
 					? body.entry[0].changes[0].value.messages[0].button.text
 					: type === "interactive"
-					? body.entry[0].changes[0].value.messages[0].interactive.nfm_reply
-							.response_json
+					? body.entry[0].changes[0].value.messages[0].interactive?.nfm_reply?.response_json || `Marcar Entregado ${body.entry[0]?.changes[0]?.value?.messages[0].interactive.button_reply.id}`
 					: type === "order" ? (() => {
 						const items = body.entry[0]?.changes[0]?.value?.messages[0]?.order?.product_items || [];
 						return items.map((item) => Object.values(item)).flat();
@@ -76,7 +77,8 @@ export const postWhatsappWebhookController = async (req, res) => {
 				type: type,
 				audioId: audioId ? audioId : "",
 				imageId: imageId ? imageId : "",
-				documentId: documentId ? documentId : "",				
+				documentId: documentId ? documentId : "",
+				deliveredId: deliveredId ? deliveredId : ""				
 			};
 			console.log("Objeto userMessage que entra a la fila:", userMessage)
 

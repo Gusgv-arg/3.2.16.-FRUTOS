@@ -6,11 +6,16 @@ import Customers from "../models/customers.js";
 import { v4 as uuidv4 } from "uuid";
 import { restartMessage } from "../utils/messages/messages.js";
 
-
 export const processDeliveryFlow = async (userMessage) => {
-	
-    // Variable para identificar método de entrega
-	let delivery = true; // true = envío a domicilio; false = retiro en el local
+	const data = JSON.parse(userMessage.message);
+
+	// Extraigo método de entrega, domicilio y otra info
+	const method = data["Metodo_de_Entrega"];
+	const address = data["Mi_domicilio"];
+	const otherInfo = data["Otra_informacion"];
+
+	// Variable para identificar método de entrega
+	let delivery = true; // true = envío a domicilio
 
 	// Verifico método de entrega para diferenciar mensaje
 	if (userMessage.message.includes('"Opciones":"Retiro_en_Local"')) {
@@ -22,11 +27,23 @@ export const processDeliveryFlow = async (userMessage) => {
 		const customer = await Customers.findOne({
 			id_user: userMessage.userPhone,
 		});
+		
+		// Defino el domicilio
+		let domicilio
 
+		if (customer && address) {
+			domicilio = address
+		} else if (customer && customer.address && !address) {
+			domicilio = customer.address
+		} else {
+			domicilio = "Domicilio No informado"
+		}
+		
+		// Si existe el cliente
 		if (customer) {
 			// Busca último pedido
-			if (customer.orders[customer.orders.length - 1].customer_status ===
-					"pedido"
+			if (
+				customer.orders[customer.orders.length - 1].customer_status === "pedido"
 			) {
 				// Si tiene pedido pendiente genera un token para el pedido
 				const flowToken = `2${uuidv4()}`;
@@ -40,7 +57,10 @@ export const processDeliveryFlow = async (userMessage) => {
 					userMessage.name,
 					flowToken,
 					delivery,
-					totalPurchase
+					totalPurchase,
+					domicilio,
+					otherInfo,
+					method
 				);
 
 				// Se envía respuesta al cliente
@@ -48,7 +68,8 @@ export const processDeliveryFlow = async (userMessage) => {
 
 				// Graba en BD cambando estado a "pendiente_entrega"
 				customer.orders[customer.orders.length - 1].orderResponse = "si";
-				customer.orders[customer.orders.length - 1].customer_status = "pendiente_entrega";
+				customer.orders[customer.orders.length - 1].customer_status =
+					"pendiente_entrega";
 				customer.orders[customer.orders.length - 1].delivery = delivery
 					? "si"
 					: "no";
@@ -57,6 +78,11 @@ export const processDeliveryFlow = async (userMessage) => {
 						timeZone: "America/Argentina/Buenos_Aires",
 					});
 				customer.orders[customer.orders.length - 1].order_token = flowToken;
+				customer.orders[customer.orders.length - 1].address = domicilio;
+				if (!customer.address){
+					customer.address = domicilio
+				}
+				customer.orders[customer.orders.length - 1].otherInfo = otherInfo;
 				customer.orders[
 					customer.orders.length - 1
 				].history += `\n${new Date().toLocaleString("es-AR", {
@@ -66,26 +92,23 @@ export const processDeliveryFlow = async (userMessage) => {
 				await customer.save();
 			} else {
 				// Si no tiene pedido pendiente, enviar el Catalogo
-                await handleWhatsappMessage(userMessage.userPhone, restartMessage);
-                await sendCatalogToCustomer(userMessage);
+				await handleWhatsappMessage(userMessage.userPhone, restartMessage);
+				await sendCatalogToCustomer(userMessage);
 			}
-		
-        } else {
-            // Si no existe el cliente, enviar el Catalogo
-            await handleWhatsappMessage(userMessage.userPhone, restartMessage);
-            await sendCatalogToCustomer(userMessage);
-			
+		} else {
+			// Si no existe el cliente, enviar el Catalogo
+			await handleWhatsappMessage(userMessage.userPhone, restartMessage);
+			await sendCatalogToCustomer(userMessage);
 		}
-        
-        return
-	
-    } catch (error) {
-        let errorMessage;
-        errorMessage = error?.response?.data
-        ? JSON.stringify(error.response.data)
-        : error.message;
 
-        console.log("error en processDeliveryFlow.js", errorMessage)
-        throw errorMessage;
-    }
+		return;
+	} catch (error) {
+		let errorMessage;
+		errorMessage = error?.response?.data
+			? JSON.stringify(error.response.data)
+			: error.message;
+
+		console.log("error en processDeliveryFlow.js", errorMessage);
+		throw errorMessage;
+	}
 };
