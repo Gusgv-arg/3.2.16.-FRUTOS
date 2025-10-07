@@ -3,7 +3,6 @@ import { totalPurchase } from "../functions/totalPurchase.js";
 
 // Función para grabar el pedido del cliente
 export const saveOrderFromCatalog = async (userMessage) => {
-
 	// Obtain current date and hour
 	const currentDateTime = new Date().toLocaleString("es-AR", {
 		timeZone: "America/Argentina/Buenos_Aires",
@@ -13,12 +12,14 @@ export const saveOrderFromCatalog = async (userMessage) => {
 		hour: "2-digit",
 		minute: "2-digit",
 		second: "2-digit",
-
 	});
 	try {
 		// Formatear orderDetails si viene como array y calcular total
-		const formatPriceARS = (price)=>`$ ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0 }).format(price)}`;
-		const prettifyProductName = (name)=>{
+		const formatPriceARS = (price) =>
+			`$ ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0 }).format(
+				price
+			)}`;
+		const prettifyProductName = (name) => {
 			if (typeof name !== "string") return "";
 			// Insertar espacios antes de mayúsculas y convertir a minúsculas
 			const spaced = name.replace(/([a-z])([A-Z])/g, "$1 $2");
@@ -35,7 +36,11 @@ export const saveOrderFromCatalog = async (userMessage) => {
 				const quantity = userMessage.message[i + 1];
 				const price = userMessage.message[i + 2];
 				// const currency = userMessage.message[i + 3]; // Asumimos ARS
-				if (typeof product === "string" && typeof quantity === "number" && typeof price === "number") {
+				if (
+					typeof product === "string" &&
+					typeof quantity === "number" &&
+					typeof price === "number"
+				) {
 					parts.push(`${quantity} kg. ${product}: ${formatPriceARS(price)}`);
 				}
 			}
@@ -49,22 +54,29 @@ export const saveOrderFromCatalog = async (userMessage) => {
 		});
 
 		if (customer) {
-			// Cliente existe - 
+			// Cliente existe -
 			// Caso Orden pendiente
-			if (customer.orders[customer.orders.length - 1].customer_status !== "pedido" &&
-				customer.orders[customer.orders.length - 1].customer_status !== "entregado") {
-				
+			if (
+				customer.orders[customer.orders.length - 1].customer_status !==
+					"pedido" &&
+				customer.orders[customer.orders.length - 1].customer_status !==
+					"entregado"
+			) {
 				// Actualizar la orden pendiente
 				customer.orders[customer.orders.length - 1].date = currentDateTime;
 				customer.orders[customer.orders.length - 1].orderResponse = "si";
 				customer.orders[customer.orders.length - 1].customer_status = "pedido";
-				customer.orders[customer.orders.length - 1].orderDetails = formattedOrderDetails;
+				customer.orders[customer.orders.length - 1].orderDetails =
+					formattedOrderDetails;
 				customer.orders[customer.orders.length - 1].delivery = "no";
-				customer.orders[customer.orders.length - 1].totalPurchase = computedTotal;
-				customer.orders[customer.orders.length - 1].statusDate = currentDateTime;
-				customer.orders[customer.orders.length - 1].history += `${currentDateTime}: Pedido realizado`;
-				// order_token queda vacío??
-
+				customer.orders[customer.orders.length - 1].totalPurchase =
+					computedTotal;
+				customer.orders[customer.orders.length - 1].statusDate =
+					currentDateTime;
+				customer.orders[
+					customer.orders.length - 1
+				].history += `${currentDateTime}: Pedido realizado`;
+				// order_id queda vacío??
 			} else {
 				// NO hay Orden pendiente (Catálogo pudo haber sido reenviado)
 				const newOrder = {
@@ -76,20 +88,19 @@ export const saveOrderFromCatalog = async (userMessage) => {
 					totalPurchase: computedTotal,
 					statusDate: currentDateTime,
 					history: `${currentDateTime}: Primer contacto`,
-					order_token: "",
+					order_id: "",
 					order_wamId: "",
 				};
-	
+
 				// Agregar el nuevo order al array
 				customer.orders.push(newOrder);
 			}
-			
+
 			await customer.save();
-			
+
 			console.log(`Cliente existente actualizado: ${customer.name}`);
-			
+
 			return `Cliente existente actualizado - Nuevo order agregado`;
-		
 		} else {
 			// Cliente no existe - Puede pasar si un cliente nuevo le reenvían el catálogo y responde
 			const newCustomer = new Customers({
@@ -108,7 +119,7 @@ export const saveOrderFromCatalog = async (userMessage) => {
 						totalPurchase: computedTotal,
 						statusDate: currentDateTime,
 						history: `${currentDateTime}: Primer contacto`,
-						order_token: "",
+						order_id: "",
 						order_wamId: "",
 					},
 				],

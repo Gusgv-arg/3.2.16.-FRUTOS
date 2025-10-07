@@ -64,3 +64,6 @@ export const restartMessage = `¡Hola! 😀\n\n🔔 Disculpanos pero no pudimos 
 
 // Mensaje al admin
 export const adminMenu = "¡Hola PILI! 👋\n\n☰ Te recuerdo las funcionalidades al escribir los números:\n*1.* Pedidos pendientes.\n*2.* \n\n*Frutos Secos by Pili*";
+
+// No hay órdenes pendientes
+export const noPendingOrders = `🔔 *Notificación:*\n\n✅ No hay pedidos pendientes de envío.\n\n*Frutos Secos by Pili*`;

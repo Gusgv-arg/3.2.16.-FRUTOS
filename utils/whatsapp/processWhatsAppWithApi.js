@@ -11,6 +11,7 @@ import {
 	adminMenu,
 	customerGreeting,
 	existingOrderMessage,
+	noPendingOrders,
 } from "../messages/messages.js";
 import Customers from "../../models/customers.js";
 import { pendingOrders } from "../dataBase/pendingOrders.js";
@@ -39,21 +40,25 @@ export const processWhatsAppWithApi = async (userMessage) => {
 		if (userMessage.userPhone === adminPhone) {
 			console.log("Detectó el Admin phone");
 			if (userMessage.type !== "document") {
-				
 				if (userMessage.message === "1") {
 					// Pedidos pendientes
 					const orders = await pendingOrders();
 
-					await handleManyWhatsappMessages(orders);
-					
-					log = `1-Se enviaron los pedidos pendientes al Administrador.`;
-				
+					if (orders.length === 0) {
+						// No hay pedidos pendientes
+						await handleWhatsappMessage(userMessage.userPhone, noPendingOrders);
+						log = `1-No hay pedidos pendientes de envío.`;
+						
+					} else {
+						await handleManyWhatsappMessages(orders);
+
+						log = `1-Se enviaron los pedidos pendientes al Administrador.`;
+					}
 				} else {
 					// Saludo al Admin
 					await handleWhatsappMessage(userMessage.userPhone, adminMenu);
 					log = `1-Se envió el Menú al Administrador.`;
 				}
-				
 			} else if (userMessage.type === "document") {
 				// Opción envío de Excel
 				console.log("entre al if de document del Admin");
@@ -84,13 +89,13 @@ export const processWhatsAppWithApi = async (userMessage) => {
 					Array.isArray(customer.orders) && customer.orders.length > 0
 						? customer.orders[customer.orders.length - 1]
 						: null;
-				
+
 				if (lastOrder && lastOrder.customer_status !== "entregado") {
 					// TIENE ORDEN PENDIENTE
 
 					// Se envía mensaje de orden pendiente
 					const orderMessage = existingOrderMessage(lastOrder.orderResponse);
-					
+
 					await handleWhatsappMessage(userMessage.userPhone, orderMessage);
 
 					// Se graba en BD el mensaje recibido y el enviado
@@ -131,15 +136,15 @@ export const processWhatsAppWithApi = async (userMessage) => {
 				}
 			} else {
 				// NO existe el cliente
-				
+
 				// Se envía el saludo inicial
 				message = customerGreeting(userMessage.name);
-				
+
 				await handleWhatsappMessage(userMessage.userPhone, message);
-				
+
 				// Envío catálogo
 				await sendCatalogToCustomer(userMessage);
-				
+
 				// Crear cliente en BD y orden con estado carrito_enviado
 				const newCustomer = new Customers({
 					id_user: userMessage.userPhone,
@@ -153,7 +158,7 @@ export const processWhatsAppWithApi = async (userMessage) => {
 							customer_status: "carrito_enviado",
 							delivery: "no",
 							statusDate: currentDateTime,
-							history: `${currentDateTime}: carrito_enviado.`
+							history: `${currentDateTime}: carrito_enviado.`,
 						},
 					],
 				});

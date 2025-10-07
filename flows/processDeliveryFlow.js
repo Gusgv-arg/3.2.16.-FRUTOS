@@ -27,18 +27,18 @@ export const processDeliveryFlow = async (userMessage) => {
 		const customer = await Customers.findOne({
 			id_user: userMessage.userPhone,
 		});
-		
+
 		// Defino el domicilio
-		let domicilio
+		let domicilio;
 
 		if (customer && address) {
-			domicilio = address
+			domicilio = address;
 		} else if (customer && customer.address && !address) {
-			domicilio = customer.address
+			domicilio = customer.address;
 		} else {
-			domicilio = "Domicilio No informado"
+			domicilio = "Domicilio No informado";
 		}
-		
+
 		// Si existe el cliente
 		if (customer) {
 			// Busca último pedido
@@ -77,10 +77,10 @@ export const processDeliveryFlow = async (userMessage) => {
 					new Date().toLocaleString("es-AR", {
 						timeZone: "America/Argentina/Buenos_Aires",
 					});
-				customer.orders[customer.orders.length - 1].order_token = flowToken;
+				customer.orders[customer.orders.length - 1].order_id = flowToken;
 				customer.orders[customer.orders.length - 1].address = domicilio;
-				if (!customer.address){
-					customer.address = domicilio
+				if (!customer.address) {
+					customer.address = domicilio;
 				}
 				customer.orders[customer.orders.length - 1].otherInfo = otherInfo;
 				customer.orders[

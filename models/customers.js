@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema({
 	otherInfo: String,
 	statusDate: String,
 	history: String,
-	order_token: String,
+	order_id: String,
 	order_wamId: String,	
 });
 
